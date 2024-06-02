@@ -12,9 +12,10 @@ last_ping_time = None
 
 @app.route('/')
 def home():
-    global status_code
+    global status_code, last_ping_time
     status_msg = f"Status Code: {status_code}" if status_code else "Ping not started"
-    return f"Website Pinger is Running<br>{status_msg}"
+    last_ping_msg = f"Last Ping Time: {datetime.fromtimestamp(last_ping_time).strftime('%Y-%m-%d %H:%M:%S')}" if last_ping_time else ""
+    return f"Website Pinger Process<br>Status: {status_msg}<br>{last_ping_msg}"
 
 @app.route('/status')
 def status():
