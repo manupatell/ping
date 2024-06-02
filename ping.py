@@ -12,20 +12,23 @@ last_ping_time = None
 
 @app.route('/')
 def home():
+    return "Welcome to the Website Pinger!"
+
+@app.route('/start-ping')
+def start_ping():
+    global last_ping_time
+    last_ping_time = time.time()
+    ping_thread = Thread(target=ping_website)
+    ping_thread.daemon = True
+    ping_thread.start()
+    return "Ping process started"
+
+@app.route('/status')
+def status():
     global status_code, last_ping_time
     status_msg = f"Status Code: {status_code}" if status_code else "Ping not started"
     last_ping_msg = f"Last Ping Time: {datetime.fromtimestamp(last_ping_time).strftime('%Y-%m-%d %H:%M:%S')}" if last_ping_time else ""
     return f"Website Pinger Process<br>Status: {status_msg}<br>{last_ping_msg}"
-
-@app.route('/status')
-def status():
-    next_ping_in = 50 - (time.time() - last_ping_time) if last_ping_time else "Ping not started"
-    return jsonify({
-        'url': URL,
-        'status_code': status_code,
-        'last_ping_time': datetime.fromtimestamp(last_ping_time).strftime('%Y-%m-%d %H:%M:%S') if last_ping_time else None,
-        'next_ping_in': next_ping_in
-    })
 
 def ping_website():
     global status_code, last_ping_time
@@ -44,7 +47,4 @@ def ping_website():
         time.sleep(50)
 
 if __name__ == '__main__':
-    thread = Thread(target=ping_website)
-    thread.daemon = True
-    thread.start()
     app.run(host='0.0.0.0', port=8080)
